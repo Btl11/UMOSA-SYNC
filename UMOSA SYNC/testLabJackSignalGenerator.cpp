@@ -61,6 +61,10 @@ LJ_HANDLE initLabJac(double pinNum)
 }
 
 
+uint64_t getMessage() {
+    return 51;
+}
+
 
 int main()
 {
@@ -82,9 +86,9 @@ int main()
     //Set settings for instance of signalGenerator
     signalGenerator umosaGen;
     umosaGen.setSignalAmplitude(1);
-    umosaGen.setSigFrequency(32);
+    umosaGen.setSigFrequency(1);
     umosaGen.setHandle(lngHandle);
-    umosaGen.setIdleAmpl(1);
+    umosaGen.setIdleAmpl(0);
     umosaGen.setStartSequence(0b10, 2);
     umosaGen.setStopSequence(0b01, 2);
     umosaGen.startSignal(1);
@@ -94,9 +98,8 @@ int main()
     while (true) {
         (void)getchar();
         printf("Sending\n");
-        umosaGen.sendMessage(16909515400900422314, 64);
+        umosaGen.sendMessage(&getMessage, 6);
     }
-
 
     while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);

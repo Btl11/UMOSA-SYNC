@@ -36,8 +36,8 @@ void signalGenerator::killTimer() {
 	timeKillEvent(timerID);
 }
 
-void signalGenerator::sendMessage(uint64_t m, uint8_t length) {
-	message = m;
+void signalGenerator::sendMessage(uint64_t(*messageGetter)(), uint8_t length) {
+	MessageGetPointer = messageGetter;
 	Mlength = length;
 	sendingIndex = -1;
 	commandFlag = sendFlag::SENDING;
@@ -51,10 +51,18 @@ void signalGenerator::setIdleAmpl(double a) { idleAmpl = a; } //Set amplitude of
 void signalGenerator::setStartSequence(uint8_t seq, uint8_t len) { startSequence = seq; startSequenceLen = len; } //Set start bits and the number of start bits
 void signalGenerator::setStopSequence(uint8_t seq, uint8_t len) { stopSequence = seq; stopSequenceLen = len; }//Set stop bits and the number of stop bits
 
+
 double signalGenerator::modulateSignal()
 {
 	static double prevPhase = 0;
-	if (sinPhase < prevPhase) sendingIndex++; //When phase jumps back to 0, the next symbol should be sent
+	if (sinPhase < prevPhase) {
+		sendingIndex++;
+		if (sendingIndex == 0) {
+			message = MessageGetPointer();
+		}
+	}
+
+	//When phase jumps back to 0, the next symbol should be sent
 	prevPhase = sinPhase;
 	if (sendingIndex < 0) return idleAmpl * signal;
 	double output;
